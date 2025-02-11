@@ -2,6 +2,7 @@
   "name": "todo-app-veel",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://makksymsly.github.io/next-test",
   "scripts": {
     "dev": "next dev",
     "start": "next start",

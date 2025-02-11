@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
   output: "export",
-  basePath: "/todo-app-veel",
+  basePath: "/next-test",
   trailingSlash: true,
 };
 

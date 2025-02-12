@@ -1,34 +1,51 @@
-import { Todo } from '@/types/Todo';
-import { UseMutationResult } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { motion } from "framer-motion";
+import { Todo } from "@/types/Todo";
+import { UseMutationResult } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 interface Props {
-	todo: Todo;
-	removeTodo: UseMutationResult<number, Error, number, void>;
-	editTodo: UseMutationResult<
-		{
-			id: number;
-			title: string;
-		},
-		Error,
-		{
-			id: number;
-			title: string;
-		},
-		void
+  todo: Todo;
+  removeTodo: UseMutationResult<number, Error, number, void>;
+  editTodo: UseMutationResult<
+    { id: number; title: string; completed: boolean },
+    Error,
+    { id: number; title: string; completed: boolean },
+    void
   >;
-  currentTodoRef: React.RefObject<HTMLInputElement | null>
+  currentTodoRef: React.RefObject<HTMLInputElement | null>;
 }
 
-export const TodoItem: React.FC<Props> = (props) => {
-	const { todo, removeTodo, editTodo, currentTodoRef} = props;
-
+export const TodoItem: React.FC<Props> = ({ todo, removeTodo, editTodo, currentTodoRef }) => {
   const [isEditing, setIsEditing] = useState(false);
-
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState(todo.title);
+  const [completed, setCompleted] = useState(todo.completed);
 
   const handleInputValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
+  };
+
+  const handleCompletedChange = () => {
+    setCompleted(!completed);
+  };
+
+  const handleEdit = () => {
+    if (!isEditing) {
+      setIsEditing(true);
+      currentTodoRef.current?.focus();
+      return;
+    }
+    editTodo.mutate({ id: todo.id, title, completed });
+    setIsEditing(false);
+  };
+
+  const handleEditOnBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    event.stopPropagation();
+    editTodo.mutate({ id: todo.id, title, completed });
+    setIsEditing(false);
+  };
+
+  const handleDelete = () => {
+    removeTodo.mutate(todo.id);
   };
 
   useEffect(() => {
@@ -39,34 +56,35 @@ export const TodoItem: React.FC<Props> = (props) => {
     }
   }, [isEditing, currentTodoRef]);
 
-	return (
-		<div className="flex items-center justify-between bg-white shadow-md p-4 rounded-lg border border-gray-200">
-			{!isEditing ? <p className={`text-lg ${todo.completed ? 'line-through text-gray-500' : 'text-black'}`}>{todo.title}</p> : <input value={title} onChange={handleInputValueChange} ref={currentTodoRef} className="text-lg"></input>}
-			<div className="flex gap-2">
-				{!isEditing ? (
-					<button
-            onClick={() => {
-              
-              setIsEditing(true);
-              currentTodoRef.current?.focus();
-						}}
-						className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition">
-						Edit
-					</button>
-				) : (
-					<button
-						onClick={() => {
-							editTodo.mutate({ id: todo.id, title: title });
-							setIsEditing(false);
-						}}
-						className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition">
-						Done
-					</button>
-				)}
-				<button onClick={() => removeTodo.mutate(todo.id)} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
-					Delete
-				</button>
-			</div>
-		</div>
-	);
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -50 }} 
+      animate={{ opacity: 1, x: 0 }} 
+      exit={{ opacity: 0, x: 50, transition: { duration: 0.3 } }}
+      layout
+      className="flex items-center justify-between bg-white shadow-md p-4 rounded-lg border border-gray-200"
+    >
+      {!isEditing ? (
+        <p className={`text-lg ${todo.completed ? "line-through text-gray-500" : "text-black"}`}>{todo.title}</p>
+      ) : (
+        <input value={title} onChange={handleInputValueChange} onBlur={handleEditOnBlur} ref={currentTodoRef} className="text-lg" />
+      )}
+      <div className="flex gap-2">
+        {isEditing && (
+          <button
+            onMouseDown={handleCompletedChange}
+            className={`px-4 py-2 ${!todo.completed ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600"} transition text-white rounded-lg`}
+          >
+            {todo.completed ? "Uncomplete" : "Complete"}
+          </button>
+        )}
+        <button onMouseDown={handleEdit} className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition">
+          {isEditing ? "Save" : "Edit"}
+        </button>
+        <button onClick={handleDelete} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+          Delete
+        </button>
+      </div>
+    </motion.div>
+  );
 };

@@ -35,14 +35,14 @@ export const deleteTodo = async (id: number) => {
 	return id;
 };
 
-export const updateTodo = async (id: number, title: string) => {
+export const updateTodo = async (id: number, title: string, completed: boolean) => {
 	const response = await axios.put(`${SUPER_SECRET_API_KEY}/${1}`, { title });
 
   const getLocalTodos = (): Todo[] => JSON.parse(localStorage.getItem('todos') || '[]');
 	const updatedTodos = getLocalTodos().map((todo) =>
-		todo.id === id ? { ...todo, title } : todo
+		todo.id === id ? { ...todo, title, completed } : todo
 	);
 	localStorage.setItem('todos', JSON.stringify(updatedTodos));
   
-	return { ...response.data, title };
+	return { ...response.data, title, completed };
 };

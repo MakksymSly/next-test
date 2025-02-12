@@ -41,7 +41,6 @@ export const TodoForm = () => {
 		queryKey: ['todos'],
 		queryFn: getTodos,
 	});
-
 	const addTodo = useMutation({
 		mutationFn: postTodo,
 
@@ -70,12 +69,12 @@ export const TodoForm = () => {
 	});
 
 	const editTodo = useMutation({
-		mutationFn: ({ id, title }: { id: number; title: string }) => updateTodo(id, title),
+    mutationFn: ({ id, title, completed }: { id: number; title: string; completed: boolean }) => updateTodo(id, title, completed),
 
-		onMutate: async ({ id, title }) => {
+		onMutate: async ({ id, title, completed}) => {
 			await queryClient.cancelQueries({ queryKey: ['todos'] });
 
-			queryClient.setQueryData(['todos'], (prev: Todo[] = []) => prev.map((todo) => (todo.id === id ? { ...todo, title: title } : todo)));
+			queryClient.setQueryData(['todos'], (prev: Todo[] = []) => prev.map((todo) => (todo.id === id ? { ...todo, title: title, completed: completed} : todo)));
 		},
 	});
 

@@ -1,21 +1,16 @@
 import { motion } from "framer-motion";
 import { Todo } from "@/types/Todo";
-import { UseMutationResult } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useTodos } from "@/utils/hooks/useTodos";
 
 interface Props {
   todo: Todo;
-  removeTodo: UseMutationResult<number, Error, number, void>;
-  editTodo: UseMutationResult<
-    { id: number; title: string; completed: boolean },
-    Error,
-    { id: number; title: string; completed: boolean },
-    void
-  >;
   currentTodoRef: React.RefObject<HTMLInputElement | null>;
 }
 
-export const TodoItem: React.FC<Props> = ({ todo, removeTodo, editTodo, currentTodoRef }) => {
+export const TodoItem: React.FC<Props> = (props) => {
+  const { todo, currentTodoRef } = props;
+  const { editTodo, removeTodo } = useTodos();
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(todo.title);
   const [completed, setCompleted] = useState(todo.completed);
@@ -25,6 +20,8 @@ export const TodoItem: React.FC<Props> = ({ todo, removeTodo, editTodo, currentT
   };
 
   const handleCompletedChange = () => {
+    const currentLocalTodos: Todo[] = JSON.parse(localStorage.getItem("todos") || "[]");
+    localStorage.setItem("todos", JSON.stringify(currentLocalTodos.map((todo: Todo) => (todo.id === todo.id ? { ...todo, completed: !todo.completed } : todo))));
     setCompleted(!completed);
   };
 

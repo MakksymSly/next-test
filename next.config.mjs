@@ -7,7 +7,7 @@ const nextConfig = {
   assetPrefix: "/next-test/",
   trailingSlash: true,
   env: {
-    NEXT_PUBLIC_API_KEY: process.env.NEXT_PUBLIC_API_KEY,
+    NEXT_PUBLIC_API_KEY: process.env.NEXT_PUBLIC_API_KEY || "https://jsonplaceholder.typicode.com/todos",
   },
 };
 

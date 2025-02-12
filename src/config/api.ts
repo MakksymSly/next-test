@@ -1,6 +1,6 @@
 import { Todo } from '@/types/Todo';
 import axios from 'axios';
-const SUPER_SECRET_API_KEY = process.env.NEXT_PUBLIC_API_KEY;
+const SUPER_SECRET_API_KEY = 'https://jsonplaceholder.typicode.com/todos';
 
 export const getTodos = async () => {
 	await new Promise((resolve) => setTimeout(resolve, 1000));
